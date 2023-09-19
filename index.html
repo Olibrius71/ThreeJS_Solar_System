@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<meta charset="utf-8">
+	<title>My first three.js app</title>
+	<style>
+	 body { margin: 0; }
+	 canvas { width: 100%; height: 90% }
+	 #toolbar { color: white; position: absolute; }
+	 #toolbar a { color: lightgrey; }
+	 #toolbar a:hover { text-decoration: none; }
+	</style>
+    </head>
+    <body>
+	<p id="toolbar">
+	    <a href="https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene">Documentation</a>
+	    <a href="mailto:adrien.peytavie@liris.cnrs.fr">adrien.peytavie@liris.cnrs.fr</a>
+	</p>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.js"></script>
+	<script type="module">
+
+        function unZoom(z = null, x = null, y = null) {
+            if (z != null) camera.position.z += z;
+            if (x != null) camera.position.x += x;
+            if (y != null) camera.position.y += y;
+        }
+
+
+
+
+
+	 // Initialisation of the scene / camera / renderer
+	 var scene = new THREE.Scene();
+	 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+	 var renderer = new THREE.WebGLRenderer();
+	 renderer.setSize( window.innerWidth, window.innerHeight );
+	 renderer.shadowMap.enabled = true;
+	 document.body.appendChild( renderer.domElement );
+	 camera.position.z = 5;
+
+     const ambientLight = new THREE.AmbientLight(0xdddddd,0.4);
+     scene.add(ambientLight);
+
+     const directionalLight = new THREE.DirectionalLight(0xffffff,1);
+     directionalLight.position.set(2,2,2);
+     scene.add(directionalLight);
+
+
+	 
+	 // Initialisation of your objects / materials / light
+	 var solarSystem = new THREE.Object3D();
+	 scene.add(solarSystem);
+	 var ball = new THREE.SphereGeometry(1, 170, 170);
+	 var sunMaterial = new THREE.MeshPhongMaterial( { color: 0xff4500 } );
+	 var sun = new THREE.Mesh(ball, sunMaterial);
+	 sun.scale.set(0.9, 0.9, 0.9);
+     sun.position.x =  0;
+	 solarSystem.add(sun);
+
+
+     let earthBall = new THREE.SphereGeometry(0.7,93,93);
+     let earthMaterial = new THREE.MeshPhongMaterial({color: 0x1254ee});
+     let earth = new THREE.Mesh(earthBall,earthMaterial);
+     earth.scale.set(0.5,0.9,0.5);
+     solarSystem.add(earth);
+
+    let moonMaterial = new THREE.MeshPhongMaterial({color: 0x1254ee});
+    let moon = new THREE.Mesh(ball,moonMaterial);
+    moon.scale.set(0.19,0.19,0.32);
+    solarSystem.add(moon);
+
+
+    let neptuneBall = new THREE.SphereGeometry(0.7,93,93);
+    let neptuneMaterial = new THREE.MeshPhongMaterial({color: 0x12ff2e});
+    let neptune = new THREE.Mesh(neptuneBall, neptuneMaterial);
+    neptune.scale.set(0.4,0.6,0.8);
+    solarSystem.add(neptune);
+
+    let uranusBall = new THREE.SphereGeometry(0.7,93,93);
+    let uranusMaterial = new THREE.MeshPhongMaterial({color: 0x12ff2e});
+    let uranus = new THREE.Mesh(uranusBall, uranusMaterial);
+    uranus.scale.set(0.4,0.6,0.8);
+    solarSystem.add(uranus);
+
+;
+     let angleEarth = 0;
+     let angleMoon = 0;
+     let angleNeptune = 0;
+     let angleUranus = 0;
+
+     let earthToSunDistance = 3;
+     let neptuneToSunDistance = 5.6;
+        let uranusToSunDistance = 8.8;
+        // This is executed for each frames
+	 function render() {
+	     requestAnimationFrame( render );
+	     // Animation code goes here
+
+	     renderer.render( scene, camera );
+
+
+        if (camera.position.z < 14) {
+            unZoom(0.1);
+        }
+
+
+         angleEarth += 0.05;
+         angleMoon += 0.08;
+         angleNeptune += 0.1;
+         angleUranus -= 0.07;
+
+         earth.position.x = earthToSunDistance * Math.cos(angleEarth);
+         earth.position.y = earthToSunDistance * Math.sin(angleEarth);
+         moon.position.x = earth.position.x + Math.cos(angleMoon);
+         moon.position.y = earth.position.y + Math.sin(angleMoon);
+
+         neptune.position.x = neptuneToSunDistance * Math.cos(angleNeptune);
+         neptune.position.y = neptuneToSunDistance * Math.sin(angleNeptune);
+
+         uranus.position.x = uranusToSunDistance * Math.cos(angleUranus);
+         uranus.position.y = uranusToSunDistance * Math.sin(angleUranus);
+     }
+	 render();
+	</script>
+    </body>
+</html>
