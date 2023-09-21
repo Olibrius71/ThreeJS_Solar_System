@@ -15,7 +15,10 @@
 	<p id="toolbar">
 	    <a href="https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene">Documentation</a>
 	    <a href="mailto:adrien.peytavie@liris.cnrs.fr">adrien.peytavie@liris.cnrs.fr</a>
-	</p>
+        <button id="animation" style="background-color: darkslategray; color: lime">Animation</button>
+        <button id="animation2" style="background-color: darkslategray; color: orangered">Animation 2</button>
+        <button id="animation3" style="background-color: darkslategray; color: greenyellow">Animation 3</button>
+    </p>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.js"></script>
 	<script type="module">
 
@@ -38,11 +41,11 @@
 	 document.body.appendChild( renderer.domElement );
 	 camera.position.z = 5;
 
-     const ambientLight = new THREE.AmbientLight(0xdddddd,0.4);
+     const ambientLight = new THREE.AmbientLight(0xffffff,0.8);
      scene.add(ambientLight);
 
-     const directionalLight = new THREE.DirectionalLight(0xffffff,1);
-     directionalLight.position.set(2,2,2);
+     const directionalLight = new THREE.DirectionalLight(0xdadaff,1);
+     directionalLight.position.set(12,-9,3);
      scene.add(directionalLight);
 
 
@@ -52,8 +55,8 @@
 	 scene.add(solarSystem);
 	 var ball = new THREE.SphereGeometry(1, 170, 170);
 	 var sunMaterial = new THREE.MeshPhongMaterial( { color: 0xff4500 } );
-	 var sun = new THREE.Mesh(ball, sunMaterial);
-	 sun.scale.set(0.9, 0.9, 0.9);
+        var sun = new THREE.Mesh(ball, sunMaterial);
+	 sun.scale.set(1.3, 1.3, 1.3);
      sun.position.x =  0;
 	 solarSystem.add(sun);
 
@@ -61,7 +64,7 @@
      let earthBall = new THREE.SphereGeometry(0.7,93,93);
      let earthMaterial = new THREE.MeshPhongMaterial({color: 0x1254ee});
      let earth = new THREE.Mesh(earthBall,earthMaterial);
-     earth.scale.set(0.5,0.9,0.5);
+     earth.scale.set(0.5,1.2,0.5);
      solarSystem.add(earth);
 
     let moonMaterial = new THREE.MeshPhongMaterial({color: 0x1254ee});
@@ -73,25 +76,44 @@
     let neptuneBall = new THREE.SphereGeometry(0.7,93,93);
     let neptuneMaterial = new THREE.MeshPhongMaterial({color: 0x12ff2e});
     let neptune = new THREE.Mesh(neptuneBall, neptuneMaterial);
-    neptune.scale.set(0.4,0.6,0.8);
+    neptune.scale.set(0.7,0.8,0.9);
     solarSystem.add(neptune);
 
     let uranusBall = new THREE.SphereGeometry(0.7,93,93);
-    let uranusMaterial = new THREE.MeshPhongMaterial({color: 0x12ff2e});
+    let uranusMaterial = new THREE.MeshPhongMaterial({ color: 0x44fe4d})
     let uranus = new THREE.Mesh(uranusBall, uranusMaterial);
-    uranus.scale.set(0.4,0.6,0.8);
+    uranus.scale.set(0.6,0.6,0.65);
     solarSystem.add(uranus);
+
+    let plutoBall = new THREE.SphereGeometry(0.7,93,93);
+    let plutoMaterial = new THREE.MeshPhongMaterial({color: 0xddff76});
+    let pluto = new THREE.Mesh(plutoBall, plutoMaterial);
+    pluto.scale.set(1.0,1.0,1.0);
+    solarSystem.add(pluto);
+
+    const textureLd = new THREE.TextureLoader();
+    const bgImage = textureLd.load("bg.jpg");
+
+    let bgMaterial = new THREE.MeshStandardMaterial({map: bgImage});
+        const backgroundSphereGeometry = new THREE.SphereGeometry(100, 32, 32); // Adjust the radius as needed
+        const backgroundSphere = new THREE.Mesh(backgroundSphereGeometry, bgMaterial);
+        backgroundSphere.scale.set(-1,-1,-1);
+        solarSystem.add(backgroundSphere);
 
 ;
      let angleEarth = 0;
      let angleMoon = 0;
      let angleNeptune = 0;
      let angleUranus = 0;
+     let anglePluto = 0;
 
      let earthToSunDistance = 3;
      let neptuneToSunDistance = 5.6;
-        let uranusToSunDistance = 8.8;
+     let uranusToSunDistance = 8.8;
+     let plutoToSunDistance = 5.0;
         // This is executed for each frames
+
+
 	 function render() {
 	     requestAnimationFrame( render );
 	     // Animation code goes here
@@ -106,8 +128,9 @@
 
          angleEarth += 0.05;
          angleMoon += 0.08;
-         angleNeptune += 0.1;
-         angleUranus -= 0.07;
+         angleNeptune += 0.085;
+         angleUranus -= 0.06;
+         anglePluto -= 0.07;
 
          earth.position.x = earthToSunDistance * Math.cos(angleEarth);
          earth.position.y = earthToSunDistance * Math.sin(angleEarth);
@@ -119,7 +142,113 @@
 
          uranus.position.x = uranusToSunDistance * Math.cos(angleUranus);
          uranus.position.y = uranusToSunDistance * Math.sin(angleUranus);
+
+         pluto.position.x = - (plutoToSunDistance * Math.cos(anglePluto)) / 1.8;
+         pluto.position.y = - (plutoToSunDistance * Math.sin(anglePluto));
+         pluto.position.z = plutoToSunDistance * Math.cos(anglePluto);
      }
+
+     let animationButton = document.getElementById("animation");
+     let animationsNumber;
+     let unzoomingAnimation;
+
+    let mouseDown = false;
+    let mousePos = [0, 0];
+    let cameraPos = 0;
+
+    document.addEventListener('mousedown', onMouseDown, false);
+    function onMouseDown( event ) {
+        mouseDown = true;
+        mousePos = [event.offsetX, event.offsetY];
+        cameraPos = camera.position;
+    }
+    document.addEventListener('mouseup', onMouseUp, false);
+    function onMouseUp( event ) {
+        mouseDown = false;
+    }
+    document.addEventListener('mousemove', onMouseMove, false);
+    let scale, dx, dy, x, y;
+    function onMouseMove( event ) {
+        if (mouseDown) {
+            // scale factor takes into account the current FOV
+            scale =  Math.tan(camera.fov/8 * Math.PI / 180)/6;   // avant: /2  et / 1.5
+            dx = mousePos[0] - event.offsetX;
+            dy = mousePos[1] - event.offsetY;
+            x = cameraPos.x + scale*dx;
+            y = cameraPos.y - scale*dy;
+            camera.position.x = x;
+            camera.position.y = y;
+            mousePos = [event.offsetX, event.offsetY];
+            cameraPos = camera.position;
+        }
+    }
+
+     animationButton.addEventListener("click", () => {
+         animationsNumber = 0;
+         unzoomingAnimation = setInterval(() => {
+             unZoom(0.3, 0.2, -0.3);
+             animationsNumber++;
+
+             let returningAnimation;
+             let returningNumber = 0;
+
+             if (animationsNumber == 80) {
+                 clearInterval(unzoomingAnimation);
+                 returningAnimation = setInterval(() => {
+                     unZoom(-0.3, -0.2, 0.3);
+                     returningNumber++;
+                     if (returningNumber == 80) clearInterval(returningAnimation);
+                 }, 7);
+             }
+
+         }, 7);
+     });
+
+
+    let animationButton2 = document.getElementById("animation2");
+
+    let angleCamera = 0;
+    let cameraAnimation;
+    let cameraAnimNumber;
+    animationButton2.addEventListener("click", () => {
+        cameraAnimNumber = 0;
+        cameraAnimation = setInterval(() => {
+            angleCamera += 0.08;
+
+            camera.position.y = 14 * Math.sin(angleCamera);
+            camera.position.z = 14 * Math.cos(angleCamera);
+            camera.lookAt(0,0,0);
+
+            cameraAnimNumber++;
+            console.log(camera.position.z)
+
+            if (camera.position.z > 13.99 && cameraAnimNumber>20) {
+                clearInterval(cameraAnimation);
+                //camera.lookAt(0,0,0);
+            }
+        }, 10);
+    })
+
+    let animationButton3 = document.getElementById("animation3");
+
+    animationButton3.addEventListener("click", () => {
+        cameraAnimNumber = 0;
+        cameraAnimation = setInterval(() => {
+            angleCamera += 0.08;
+
+            camera.position.y = 14 * Math.sin(angleCamera);
+            camera.position.z = 14 * Math.cos(angleCamera);
+            camera.lookAt(0,0,0);
+
+            cameraAnimNumber++;
+            console.log(camera.position.z)
+
+            if (camera.position.z < -13.99 && cameraAnimNumber>20) {
+                clearInterval(cameraAnimation);
+            }
+        }, 10);
+    })
+
 	 render();
 	</script>
     </body>
